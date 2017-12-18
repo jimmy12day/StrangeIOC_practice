@@ -78,6 +78,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\MyGame\Scripts\CameraFollow.cs" />
+    <Compile Include="Assets\MyGame\Scripts\PlayerController.cs" />
+    <Compile Include="Assets\MyGame\Scripts\PlayerSetting.cs" />
+    <Compile Include="Assets\MyGame\Scripts\TestGameManager.cs" />
     <Compile Include="Assets\strangeioc-master\StrangeIoC\examples\Assets\scripts\justtests\TesterContext.cs" />
     <Compile Include="Assets\strangeioc-master\StrangeIoC\examples\Assets\scripts\justtests\TesterContextView.cs" />
     <Compile Include="Assets\strangeioc-master\StrangeIoC\examples\Assets\scripts\justtests\view\ITesterView.cs" />
