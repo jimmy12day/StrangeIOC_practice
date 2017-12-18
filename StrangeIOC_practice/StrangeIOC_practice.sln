@@ -1,12 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrangeIOC_practice", "StrangeIOC_practice.csproj", "{B6C6F546-D156-07CF-0EE8-72D7E1A79541}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B6C6F546-D156-07CF-0EE8-72D7E1A79541}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6C6F546-D156-07CF-0EE8-72D7E1A79541}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6C6F546-D156-07CF-0EE8-72D7E1A79541}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6C6F546-D156-07CF-0EE8-72D7E1A79541}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
