@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     Vector3 shootDirection = Vector3.zero;
     bool isShooting = false;
     bool isArrived = false;
-    float accelation = 10;
+    float accelation = 40;
     // Use this for initialization
     void Start()
     {
@@ -23,13 +23,18 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Vector2 mousePosition = Input.mousePosition;
+        Vector3 mousePositionInWolrd = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 10f));
+        //Vector3 direction = mousePositionInWolrd - transform.position;
+        Debug.DrawLine(transform.position, mousePositionInWolrd);
+
+
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 _shootDirection = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 10f));
             _shootDirection.z = 0;
             StartShootingWithMouse(_shootDirection);
         }
-        else
+
         if (Input.GetMouseButtonUp(0))
         {
             DoNotShoot();
@@ -39,22 +44,31 @@ public class PlayerController : MonoBehaviour
         {
             Retraction();
         }
-        else
+
         if (Input.GetMouseButtonUp(1))
         {
             DoNotRetract();
         }
 
 
+
     }
 
+    void ClampedVelocity(Vector3 velocity, float minX, float maxX)
+    {
+        Vector3 velocityClamped = velocity;
+        velocityClamped = new Vector3(Mathf.Clamp(velocityClamped.x, minX, maxX), velocityClamped.y, velocityClamped.z);
+        _rigidbody.velocity = velocityClamped;
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject)
         {
             isArrived = true;
             shootDirection = Vector3.zero;
-            _rigidbody.isKinematic = true;
+            isShooting = false;
+            _rigidbody.useGravity = true;
+            //_rigidbody.isKinematic = true;
         }
     }
     private void FixedUpdate()
@@ -62,6 +76,10 @@ public class PlayerController : MonoBehaviour
         if (isShooting && shootDirection != Vector3.zero && !isArrived)
         {
             Shoot(shootDirection);
+        }
+        if (isArrived)
+        {
+            ClampedVelocity(_rigidbody.velocity, 0, 1);
         }
     }
 
@@ -71,16 +89,26 @@ public class PlayerController : MonoBehaviour
 
     private void Retraction()
     {
+        if (!_rigidbody.isKinematic)
+        {
+            _rigidbody.isKinematic = false;
+            _rigidbody.useGravity = true;
+        }
     }
 
     private void DoNotShoot()
     {
         shootDirection = Vector3.zero;
+        if (isArrived)
+        {
+            _rigidbody.useGravity = true;
+        }
     }
 
     private void StartShootingWithMouse(Vector3 _shootDirection)
     {
         isShooting = true;
+        isArrived = false;
         _rigidbody.isKinematic = false;
         shootDirection = _shootDirection;
 
@@ -88,11 +116,9 @@ public class PlayerController : MonoBehaviour
     }
     private void Shoot(Vector3 _shootDirection)
     {
-        Debug.Log("mousePosition|" + _shootDirection);
+        _rigidbody.useGravity = false;
         Vector3 direction = _shootDirection - transform.position;
         direction.z = 0;
-        Debug.Log("direction|" + direction);
-        Debug.Log("position|" + transform.position);
         _rigidbody.AddForce(direction * accelation, ForceMode.Force);
     }
 }
