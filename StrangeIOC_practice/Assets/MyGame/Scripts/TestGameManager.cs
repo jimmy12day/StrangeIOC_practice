@@ -14,7 +14,7 @@ public class TestGameManager : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    { 
         UpdateState();
     }
 
@@ -23,10 +23,11 @@ public class TestGameManager : MonoBehaviour
         Event evt = Event.current;
         if (evt.isKey)
         {
-            if (evt.type == EventType.KeyDown)
-            {
-                Debug.Log(evt.keyCode);
-            }
+            //if (evt.type == EventType.KeyDown)
+            //{
+            keyPressed = evt.keyCode;
+            Debug.Log(evt.keyCode);
+            //}
         }
     }
     private void UpdateState()
