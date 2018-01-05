@@ -1,57 +1,91 @@
 ﻿using UnityEngine;
-
+using Inputs = JimmySDK.JimmyInputs;
 
 [RequireComponent(typeof(SphereCollider))]
 [RequireComponent(typeof(Rigidbody))]
 
 public class PlayerController : MonoBehaviour
 {
-    Rigidbody _rigidbody;
-    Collider _collider;
+    [SerializeField] bool listenToMouseClick = false;
+    [SerializeField] bool canMove = false;
+    [SerializeField] bool canPull = false;
+    [SerializeField] bool isArrived = false;
+    [SerializeField] float clampMax = 30f;
+
+    public void ReceivedState(GameState stateMessage)
+    {
+        switch (stateMessage)
+        {
+            case GameState.MITOSIS:
+                {
+                    canMove = false;
+                    isArrived = false;
+                    canPull = false;
+                    break;
+                }
+            case GameState.PULL:
+                {
+                    canMove = false;
+                    isArrived = false;
+                    canPull = true;
+
+                    break;
+                }
+            case GameState.REVERSE:
+                {
+                    canMove = true;
+                    isArrived = false;
+                    canPull = true;
+                    break;
+                }
+            default:
+                {
+                    canMove = true;
+                    isArrived = false;
+                    canPull = true;
+                    break;
+                }
+        }
+    }
     Vector3 shootDirection = Vector3.zero;
-    bool isShooting = false;
-    bool isArrived = false;
-    float accelation = 40;
-    // Use this for initialization
+    Rigidbody _rigidbody;
+
+    public float shootingSpeed;
+
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        _collider = GetComponent<SphereCollider>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector2 mousePosition = Input.mousePosition;
-        Vector3 mousePositionInWolrd = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 10f));
-        //Vector3 direction = mousePositionInWolrd - transform.position;
+        Vector3 mousePositionInWolrd = Inputs.ScreenToWorldPosition(Camera.main);
         Debug.DrawLine(transform.position, mousePositionInWolrd);
 
-
-        if (Input.GetMouseButtonDown(0))
+        if (listenToMouseClick)
         {
-            Vector3 _shootDirection = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 10f));
-            _shootDirection.z = 0;
-            StartShootingWithMouse(_shootDirection);
+            if (Input.GetMouseButtonDown(0))
+            {
+                Vector3 _shootDirection = mousePositionInWolrd;
+                _shootDirection.z = transform.position.z;
+                StartShootingWithMouse(_shootDirection);
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                DoNotShoot();
+            }
+
+            if (Input.GetMouseButtonDown(1))
+            {
+                Retraction();
+            }
+
+            if (Input.GetMouseButtonUp(1))
+            {
+                DoNotRetract();
+            }
         }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            DoNotShoot();
-        }
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            Retraction();
-        }
-
-        if (Input.GetMouseButtonUp(1))
-        {
-            DoNotRetract();
-        }
-
-
-
     }
 
     void ClampedVelocity(Vector3 velocity, float minX, float maxX)
@@ -66,21 +100,22 @@ public class PlayerController : MonoBehaviour
         {
             isArrived = true;
             shootDirection = Vector3.zero;
-            isShooting = false;
+            canPull = false;
             _rigidbody.useGravity = true;
+            listenToMouseClick = true;
             //_rigidbody.isKinematic = true;
         }
     }
     private void FixedUpdate()
     {
-        if (isShooting && shootDirection != Vector3.zero && !isArrived)
+        if (canPull && shootDirection != Vector3.zero && !isArrived)
         {
-            Shoot(shootDirection);
+            Pull(shootDirection);
         }
-        if (isArrived)
-        {
-            ClampedVelocity(_rigidbody.velocity, 0, 1);
-        }
+
+        if (canMove)
+            ClampedVelocity(_rigidbody.velocity, 0, clampMax);
+
     }
 
     private void DoNotRetract()
@@ -107,18 +142,19 @@ public class PlayerController : MonoBehaviour
 
     private void StartShootingWithMouse(Vector3 _shootDirection)
     {
-        isShooting = true;
+        canPull = true;
         isArrived = false;
         _rigidbody.isKinematic = false;
         shootDirection = _shootDirection;
 
 
     }
-    private void Shoot(Vector3 _shootDirection)
+    private void Pull(Vector3 _shootDirection)
     {
+        listenToMouseClick = false;
         _rigidbody.useGravity = false;
         Vector3 direction = _shootDirection - transform.position;
         direction.z = 0;
-        _rigidbody.AddForce(direction * accelation, ForceMode.Force);
+        _rigidbody.AddForce(direction * shootingSpeed, ForceMode.Force);
     }
 }
